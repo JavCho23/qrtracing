@@ -16,7 +16,7 @@ export class FirebaseUserRepository extends UserRepository {
         .collection("users")
         .doc(mac.value)
         .collection("record")
-        .where("date", ">=", new Date(Date.now() - 1209600000))
+        .where("checkIn", ">=", new Date(Date.now() - 1209600000))
         .get();
       await Promise.all(
         records.docs.map(async (record) => {
@@ -37,7 +37,7 @@ export class FirebaseUserRepository extends UserRepository {
   public async sendNotification(tokens: Array<string>, test: Test) {
     const message = {
       notification: {
-        title: "Titulo para la alerta",
+        title: "Alerta de reciente contacto",
         body: `Una de las personas con las que tuvo contacto ultimamente ha dado positivo a Covid-19`,
       },
       tokens: tokens,

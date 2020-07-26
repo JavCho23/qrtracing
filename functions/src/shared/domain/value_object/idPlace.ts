@@ -4,6 +4,6 @@ export class idPlace {
     this._value = value;
   }
   get value(): string {
-    return this.value;
+    return this._value;
   }
 }
