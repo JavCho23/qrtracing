@@ -22,6 +22,23 @@ export const sendAlertFirebaseFunction = functions.firestore
 
 export const helloWorld = functions.https.onRequest(
   async (request, response) => {
-    response.send("Todo ok");
+    try {
+      const message = {
+        notification: {
+          title: "dff",
+          body: "sdfdsf",
+        },
+        tokens: [
+          "fjFPrlO_gn8:APA91bGkryThrxbkhsGZMKco_vkCXueTx4fprPG_CYjaSCyTLD9cL6ZBSDMtD71DPKUg84g_Lfd3j0cVYpSwGB4C-rp8_sZGNNgYSYx-QxD38N3TOIhgU3WPzKRVhjzPu2Z0sbCitNVv",
+        ],
+      };
+
+      const res = await messaging.sendMulticast(message);
+      console.log(res);
+      response.send("Todo ok");
+    } catch (error) {
+      console.log(error);
+    }
   }
 );
+

@@ -18,33 +18,32 @@ export class FirebaseUserRepository extends UserRepository {
         .collection("record")
         .where("date", ">=", new Date(Date.now() - 1209600000))
         .get();
-      Promise.all(
-        records.docs.map((record) => {
-          record.data().users.map(async (user: string) => {
-            await this.sendNotification(
-              new Mac(user),
-              new Test(
-                positiveCase.test.date,
-                positiveCase.test.method,
-                positiveCase.test.positive
-              )
-            );
-          });
+      await Promise.all(
+        records.docs.map(async (record) => {
+          await this.sendNotification(
+            record.data().users,
+            new Test(
+              positiveCase.test.method,
+              new Date(positiveCase.test.date).getTime(),
+              positiveCase.test.positive
+            )
+          );
         })
       );
     } catch (error) {
       console.log(error);
     }
   }
-  public async sendNotification(token: Mac, test: Test) {
-    var message = {
-      data: {
-        method: test._mode,
-        date: test._date,
+  public async sendNotification(tokens: Array<string>, test: Test) {
+    const message = {
+      notification: {
+        title: "Titulo para la alerta",
+        body: `Una de las personas con las que tuvo contacto ultimamente ha dado positivo a Covid-19`,
       },
-      token: token.value,
+      tokens: tokens,
     };
-    await this._messaging.send(message);
+    console.log(message);
+    await this._messaging.sendMulticast(message);
   }
   constructor(
     db: FirebaseFirestore.Firestore,
