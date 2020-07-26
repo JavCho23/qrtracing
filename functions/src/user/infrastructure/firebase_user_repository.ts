@@ -15,11 +15,14 @@ export class FirebaseUserRepository extends UserRepository {
       const records = await this._db
         .collection("users")
         .doc(mac.value)
-        .collection("record")
+        .collection("history")
         .where("checkIn", ">=", new Date(Date.now() - 1209600000))
         .get();
+      console.log(records);
       await Promise.all(
         records.docs.map(async (record) => {
+          if (record.data().users.length == 0) return;
+
           await this.sendNotification(
             record.data().users,
             new Test(
@@ -30,9 +33,7 @@ export class FirebaseUserRepository extends UserRepository {
           );
         })
       );
-    } catch (error) {
-      console.log(error);
-    }
+    } catch (error) {}
   }
   public async sendNotification(tokens: Array<string>, test: Test) {
     const message = {
