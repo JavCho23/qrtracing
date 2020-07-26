@@ -12,9 +12,17 @@ import { CheckOutUser } from "./place/aplication/check_out_user";
 admin.initializeApp();
 const firestore = admin.firestore();
 const messaging = admin.messaging();
+
+// async function updateToken(before, after) {
+//   const users = await firestore.collection("users").listDocuments();
+  
+// }
+
 export const sendAlertFirebaseFunction = functions.firestore
   .document("users/{docId}")
   .onUpdate(async (change, conext) => {
+ //   if (change.before.data().token !== change.after.data().token)
+   //   updateToken(change.before.data().token, change.after.data().token);
     if (change.after.data().test.positive != true) return;
     const sendNotifications = new SendNotifications(
       new FirebaseUserRepository(firestore, messaging)
@@ -22,11 +30,9 @@ export const sendAlertFirebaseFunction = functions.firestore
     await sendNotifications.call(new Mac(change.after.id));
   });
 
-
 export const checkInFirebaseFunction = functions.firestore
   .document("records/{recordId}")
   .onCreate(async (change, conext) => {
-
     const record = change.data();
 
     const verifyStep = new VerifyStep(new FirebasePlaceRepository(firestore));
@@ -59,6 +65,15 @@ export const checkInFirebaseFunction = functions.firestore
         );
         break;
       case "checkOutAndCheckIn":
+        let checkOutUserBoth = new CheckOutUser(
+          new FirebasePlaceRepository(firestore)
+        );
+        await checkOutUserBoth.call(
+          new idPlace(record.placeId),
+          record.companyId,
+          new Mac(record.user),
+          record.date
+        );
         let checkInUserBoth = new ChechInUser(
           new FirebasePlaceRepository(firestore)
         );
@@ -71,15 +86,7 @@ export const checkInFirebaseFunction = functions.firestore
           record.company,
           record.companyId
         );
-        let checkOutUserBoth = new CheckOutUser(
-          new FirebasePlaceRepository(firestore)
-        );
-        await checkOutUserBoth.call(
-          new idPlace(record.placeId),
-          record.companyId,
-          new Mac(record.user),
-          record.date
-        );
+
         break;
     }
   });
