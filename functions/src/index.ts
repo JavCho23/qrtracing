@@ -5,6 +5,7 @@ import { Mac } from "./shared/domain/value_object/mac";
 // // https://firebase.google.com/docs/functions/typescript
 //
 import * as admin from "firebase-admin";
+import { SendNotifications } from "./user/aplication/send_notification";
 admin.initializeApp();
 //onst funcion = new FirebaseUserRepository();
 const firestore = admin.firestore();
@@ -13,8 +14,10 @@ export const sendAlertFirebaseFunction = functions.firestore
   .document("users/{docId}")
   .onUpdate(async (change, conext) => {
     if (change.after.data().test.positive != true) return;
-    const funcion = new FirebaseUserRepository(firestore, messaging);
-    await funcion.notifyContacts(new Mac("SbGZk4zJFljYGaGX1UU5"));
+    const sendNotifications = new SendNotifications(
+      new FirebaseUserRepository(firestore, messaging)
+    );
+    await sendNotifications.call(new Mac(change.after.id));
   });
 
 export const helloWorld = functions.https.onRequest(
